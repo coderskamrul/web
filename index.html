@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Green Screen Remove</title>
+    <style>
+      body {
+        background-color: rgb(46, 43, 43);
+      }
+      #video {
+        margin-left: 40px;
+        border: 4px solid orangered;
+      }
+      #output-canvas {
+        margin-left: 40px;
+        border: 4px solid orangered;
+        position: absolute;
+        top: 100px;
+        right: 60px;
+        bottom: 0px;
+      }
+      .design {
+        margin-top: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="design">
+      <video
+        id="video"
+        height="350"
+        width="600"
+        src="video01.mp4"
+        autoplay
+        muted
+        loop
+      ></video>
+      <video id="video" height="350" width="600" src="video02.mp4"></video>
+      <canvas id="output-canvas" height="350" width="600"></canvas>
+    </div>
+
+    <script>
+      let video, canva_output, temp_canva, temp_context, canva_drow;
+      function tagcreate() {
+        video = document.getElementById("video");
+        canva_output = document.getElementById("output-canvas");
+        canva_drow = canva_output.getContext("2d");
+
+        temp_canva = document.createElement("canvas");
+        temp_canva.setAttribute("width", 600);
+        temp_canva.setAttribute("height", 350);
+        temp_context = temp_canva.getContext("2d");
+        video.addEventListener("play", removescreen);
+      }
+
+      function removescreen() {
+        temp_context.drawImage(video, 0, 0, 600, 350);
+        let frame = temp_context.getImageData(
+          0,
+          0,
+          video.videoWidth,
+          video.videoHeight
+        );
+        for (let i = 0; i < frame.data.length / 4; i++) {
+          let red = frame.data[i * 4 + 0];
+          let green = frame.data[i * 4 + 1];
+          let blue = frame.data[i * 4 + 2];
+          if (red < 108 && green < 440 && green > 100 && blue < 140) {
+            frame.data[i * 4 + 3] = 0;
+          }
+        }
+        canva_drow.putImageData(frame, 0, 0);
+        setTimeout(removescreen, 0);
+      }
+      tagcreate();
+    </script>
+  </body>
+</html>
